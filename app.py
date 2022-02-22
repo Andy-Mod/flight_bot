@@ -4,67 +4,48 @@ from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram.ext.filters import Filters
+from chat import get_response, predict_class
+from train import train 
 
 updater = Updater("5220119712:AAFWIyM9D7WYzMoUIXcA0koYNTl9PXtpRsQ",
 				use_context=True)
 
-
 def start(update: Update, context: CallbackContext):
 	update.message.reply_text(
-		"Hello sir, Welcome to the Bot.Please write\
-		/help to see the commands available.")
+		"Salutation brave internaute. \n\
+  	Merçi d'avoir adhérer à notre service. Pour plus d'information tapez la commande /help.")
 
 def help(update: Update, context: CallbackContext):
 	update.message.reply_text("""Available Commands :-
-	/youtube - To get the youtube URL
-	/linkedin - To get the LinkedIn profile URL
-	/gmail - To get gmail URL
-	/geeks - To get the GeeksforGeeks URL""")
+	/service - Pour contacter le service client.
+ 	/reservation - Pour procéder à la réservation d'un billet d'avion""")
 
 
-def gmail_url(update: Update, context: CallbackContext):
+def service_url(update: Update, context: CallbackContext):
 	update.message.reply_text(
-		"Your gmail link here (I am not\
-		giving mine one for security reasons)")
+		"Veillez formuler votre demande à l'adresse suivante :\
+		flight.service@gmail.com)")
 
-
-def youtube_url(update: Update, context: CallbackContext):
-	update.message.reply_text("Youtube Link =>\
-	https://www.youtube.com/")
-
-
-def linkedIn_url(update: Update, context: CallbackContext):
+def reservation_url(update: Update, context: CallbackContext):
 	update.message.reply_text(
-		"LinkedIn URL => \
-		https://www.linkedin.com/in/dwaipayan-bandyopadhyay-007a/")
+		"Réservation du billet d'avion.")
 
-
-def geeks_url(update: Update, context: CallbackContext):
-	update.message.reply_text(
-		"GeeksforGeeks URL => https://www.geeksforgeeks.org/")
-
-
-def unknown(update: Update, context: CallbackContext):
-	update.message.reply_text(
-		"Sorry '%s' is not a valid command" % update.message.text)
-
-
-def unknown_text(update: Update, context: CallbackContext):
-	update.message.reply_text(
-		"Sorry I can't recognize you , you said '%s'" % update.message.text)
+def discuss_text(update: Update, context: CallbackContext):
+    tag = predict_class(update.message.text)
+    response = get_response(tag)
+    
+    update.message.reply_text(response)
 
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('youtube', youtube_url))
 updater.dispatcher.add_handler(CommandHandler('help', help))
-updater.dispatcher.add_handler(CommandHandler('linkedin', linkedIn_url))
-updater.dispatcher.add_handler(CommandHandler('gmail', gmail_url))
-updater.dispatcher.add_handler(CommandHandler('geeks', geeks_url))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown))
-updater.dispatcher.add_handler(MessageHandler(
-	Filters.command, unknown)) # Filters out unknown commands
+updater.dispatcher.add_handler(CommandHandler('reservation', reservation_url))
+updater.dispatcher.add_handler(CommandHandler('service', service_url))
+#updater.dispatcher.add_handler(MessageHandler(Filters.text, discuss))
+#updater.dispatcher.add_handler(MessageHandler(
+#	Filters.command, discuss)) # Filters out unknown commands
 
 # Filters out unknown messages.
-updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown_text))
+updater.dispatcher.add_handler(MessageHandler(Filters.text, discuss_text))
 
 updater.start_polling()
